@@ -1,0 +1,24 @@
+.chatRow {
+  display: block;
+  margin: 2px;
+  padding: 2px 4px;
+}
+
+.chatRowRead {
+  color: #aaa;
+}
+
+.chatRowCurrent {
+  border: 1px solid red;
+  border-bottom: none;
+}
+
+.userName {
+  display: inline;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.message {
+  display: inline;
+}
