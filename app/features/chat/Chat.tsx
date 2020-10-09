@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import TwitchJs, { Message } from 'twitch-js';
 import MessageItem from '../messageItem/MessageItem';
+import styles from './Chat.css';
 import { addMessage, selectChat } from './chatSlice';
 // import {
 //   increment,
@@ -16,6 +17,7 @@ export default function Chat() {
   const messages = useSelector(selectChat);
 
   const [currentMessage, setCurrentMessage] = useState(2);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     console.log('Connecting....');
@@ -35,6 +37,7 @@ export default function Chat() {
       .then(() => {
         // ... and then join the channel.
         chat.join(channel);
+        setIsConnected(true);
         return true;
       })
       .catch(console.log);
@@ -47,9 +50,14 @@ export default function Chat() {
 
   return (
     <div>
+      <i
+        className={[
+          styles.connectedIcon,
+          isConnected ? styles.connected : styles.disconnected,
+          isConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
+        ].join(' ')}
+      />
       {messages.map((message: Message, index: number) => {
-        console.log(index);
-
         return (
           <MessageItem
             key={message.tags.id}
