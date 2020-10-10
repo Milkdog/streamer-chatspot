@@ -1,9 +1,9 @@
 import React from 'react';
-import { EmoteTag, Message } from 'twitch-js';
+import { EmoteTag, Message, UserNoticeMessage } from 'twitch-js';
 import styles from './MessageItem.css';
 
 type Props = {
-  message: Message;
+  message: Message | UserNoticeMessage;
   isRead: boolean;
   isCurrent: boolean;
 };
@@ -41,14 +41,20 @@ const renderEmotes = (message: Message) => {
 };
 
 export default function MessageItem(props: Props) {
-  // const dispatch = useDispatch();
-  // const value = useSelector(selectCount);
   const { message, isRead, isCurrent } = props;
 
-  console.log(message);
+  const fieldRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    if (isCurrent && fieldRef.current) {
+      fieldRef.current.scrollIntoView({
+        block: 'center',
+      });
+    }
+  });
 
   return (
     <div
+      ref={fieldRef}
       className={[
         styles.chatRow,
         isRead ? styles.chatRowRead : '',
@@ -56,8 +62,17 @@ export default function MessageItem(props: Props) {
       ].join(' ')}
       key={message.tags.id}
     >
-      <div className={styles.userName}>{`${message.username}:`}</div>
-      <div className={styles.message}>{renderEmotes(message)}</div>
+      <div
+        className={styles.userName}
+        style={{
+          color: message.tags.color,
+        }}
+      >
+        {message.username && `${message.username}:`}
+      </div>
+      <div className={styles.message}>
+        {message.systemMessage || renderEmotes(message)}
+      </div>
     </div>
   );
 }

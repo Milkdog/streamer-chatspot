@@ -9,11 +9,11 @@
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
 import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import path from 'path';
 import { app, BrowserWindow } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { autoUpdater } from 'electron-updater';
+import path from 'path';
+import 'regenerator-runtime/runtime';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -66,19 +66,21 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
+    width: 340,
     height: 728,
     icon: getAssetPath('icon.png'),
-    // alwaysOnTop: true,
+    alwaysOnTop: true,
     webPreferences:
       (process.env.NODE_ENV === 'development' ||
         process.env.E2E_BUILD === 'true') &&
       process.env.ERB_SECURE !== 'true'
         ? {
             nodeIntegration: true,
+            enableRemoteModule: true,
           }
         : {
             preload: path.join(__dirname, 'dist/renderer.prod.js'),
+            enableRemoteModule: true,
           },
   });
 

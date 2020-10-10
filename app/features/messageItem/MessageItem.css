@@ -1,6 +1,6 @@
 .chatRow {
   display: block;
-  margin: 2px;
+  margin: 4px 2px;
   padding: 2px 4px;
 }
 
@@ -22,3 +22,4 @@
 .message {
   display: inline;
 }
+

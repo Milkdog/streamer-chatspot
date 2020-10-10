@@ -1,9 +1,11 @@
+import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import TwitchJs, { Message } from 'twitch-js';
 import MessageItem from '../messageItem/MessageItem';
 import styles from './Chat.css';
-import { addMessage, selectChat } from './chatSlice';
+import { addMessage, backMessage, nextMessage, selectChat } from './chatSlice';
+
 // import {
 //   increment,
 //   decrement,
@@ -12,24 +14,41 @@ import { addMessage, selectChat } from './chatSlice';
 //   selectCount,
 // } from './counterSlice';
 
+const isPrivateMessage = (message: Message) => {
+  return (
+    message.command === TwitchJs.Chat.Commands.PRIVATE_MESSAGE &&
+    message.event === TwitchJs.Chat.Events.PRIVATE_MESSAGE
+  );
+};
+
+const isRaid = (message: Message) => {
+  return (
+    message.command === TwitchJs.Chat.Commands.USER_NOTICE &&
+    message.event === TwitchJs.Chat.Events.RAID
+  );
+};
+
 export default function Chat() {
   const dispatch = useDispatch();
-  const messages = useSelector(selectChat);
+  const { messages, currentMessage } = useSelector(selectChat);
 
-  const [currentMessage, setCurrentMessage] = useState(2);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    console.log('Connecting....');
     const token = 'oauth:tce57zyg6h1g089x9enbxumnk7tp9h'; // process.env.TWITCH_TOKEN;
     const username = 'milkdaddy777'; // process.env.TWITCH_USERNAME;
-    const channel = '#milkdaddy777';
+    const channel = '#julianfelixc'.toLocaleLowerCase();
+    // const channel = '#milkdaddy777'.toLocaleLowerCase();
 
     // Instantiate clients.
     const { api, chat } = new TwitchJs({ token, username });
 
     chat.on(TwitchJs.Chat.Events.PRIVATE_MESSAGE, (message: Message) => {
-      dispatch(addMessage({ message }));
+      console.log(message);
+      if (isPrivateMessage(message) || isRaid(message)) {
+        delete message.timestamp;
+        dispatch(addMessage({ message }));
+      }
     });
 
     chat
@@ -40,12 +59,18 @@ export default function Chat() {
         setIsConnected(true);
         return true;
       })
-      .catch(console.log);
+      .catch((e) => {
+        setIsConnected(false);
+        console.log(e);
+      });
 
-    // globalShortcut.register('CmdOrCtrl+A', () => {
-    //   // your call
-    //   console.log('Pushed');
-    // });
+    remote.globalShortcut.register('[', () => {
+      dispatch(backMessage());
+    });
+
+    remote.globalShortcut.register(']', () => {
+      dispatch(nextMessage());
+    });
   }, [dispatch]);
 
   return (
@@ -60,7 +85,7 @@ export default function Chat() {
       {messages.map((message: Message, index: number) => {
         return (
           <MessageItem
-            key={message.tags.id}
+            key={`${message.tags.id}-${message.tags.tmiSentTs}`}
             message={message}
             isRead={index < currentMessage}
             isCurrent={index === currentMessage}
