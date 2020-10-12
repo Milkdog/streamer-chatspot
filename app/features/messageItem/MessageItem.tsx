@@ -1,47 +1,30 @@
 import React from 'react';
-import { EmoteTag, Message, UserNoticeMessage } from 'twitch-js';
+import { ParsedMessagePart, PrivateMessage } from 'twitch-chat-client';
 import styles from './MessageItem.css';
 
 type Props = {
-  message: Message | UserNoticeMessage;
+  msgData: PrivateMessage;
   isRead: boolean;
   isCurrent: boolean;
 };
 
-const renderEmotes = (message: Message) => {
-  const { emotes } = message.tags;
-  const msg = message.message;
-  let end = 0;
-
-  const parts: any[] = [];
-
-  const sortedEmotes = emotes
-    .filter((emote: EmoteTag) => typeof emote.start === 'number')
-    .sort((a: EmoteTag, b: EmoteTag) => a.start - b.start);
-
-  sortedEmotes.map((emote: EmoteTag) => {
-    const img = (
-      // eslint-disable-next-line jsx-a11y/alt-text
-      <img
-        key={`${emote.id}-${emote.start}-${emote.end}`}
-        src={`http://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/1.0`}
-      />
-    );
-
-    parts.push(msg.slice(end, emote.start));
-    parts.push(img);
-
-    end = emote.end + 1;
-    return true;
-  });
-
-  parts.push(msg.slice(end));
-
-  return parts;
+type EmoteProps = {
+  emote: ParsedMessageEmotePart;
 };
 
+export function Emote(props: EmoteProps) {
+  const { emote } = props;
+  return (
+    <img
+      key={`${emote.id}-${emote.position}-${emote.length}`}
+      src={`http://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/1.0`}
+      alt={emote.name}
+    />
+  );
+}
+
 export default function MessageItem(props: Props) {
-  const { message, isRead, isCurrent } = props;
+  const { msgData, isRead, isCurrent } = props;
 
   const fieldRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -60,18 +43,27 @@ export default function MessageItem(props: Props) {
         isRead ? styles.chatRowRead : '',
         isCurrent ? styles.chatRowCurrent : '',
       ].join(' ')}
-      key={message.tags.id}
+      // key={message.tags.id}
     >
       <div
         className={styles.userName}
-        style={{
-          color: message.tags.color,
-        }}
+        style={
+          {
+            // color: msgData.userColor,
+          }
+        }
       >
-        {message.username && `${message.username}:`}
+        {msgData.userInfo.displayName && `${msgData.userInfo.displayName}:`}
       </div>
       <div className={styles.message}>
-        {message.systemMessage || renderEmotes(message)}
+        {msgData.parseEmotes().map((msgPart: ParsedMessagePart) => {
+          if (msgPart.type === 'emote') {
+            return <Emote key={msgPart.position} emote={msgPart} />;
+          }
+
+          // eslint-disable-next-line react/jsx-key
+          return <span key={msgPart.position}>{msgPart.text}</span>;
+        })}
       </div>
     </div>
   );

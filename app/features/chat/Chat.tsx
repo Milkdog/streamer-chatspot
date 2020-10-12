@@ -1,68 +1,64 @@
 import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import TwitchJs, { Message } from 'twitch-js';
+import { ChatClient } from 'twitch-chat-client';
+import { ApiClient } from 'twitch/lib';
 import MessageItem from '../messageItem/MessageItem';
 import styles from './Chat.css';
-import { addMessage, backMessage, nextMessage, selectChat } from './chatSlice';
+import {
+  addMessage,
+  backMessage,
+  goToNewestMessage,
+  nextMessage,
+  selectChat
+} from './chatSlice';
+import { selectTwitch, setUser } from './twitchSlice';
+import { ElectronAuthProvider } from './utils/twitch-electron-auth-provider/src';
 
-// import {
-//   increment,
-//   decrement,
-//   incrementIfOdd,
-//   incrementAsync,
-//   selectCount,
-// } from './counterSlice';
-
-const isPrivateMessage = (message: Message) => {
-  return (
-    message.command === TwitchJs.Chat.Commands.PRIVATE_MESSAGE &&
-    message.event === TwitchJs.Chat.Events.PRIVATE_MESSAGE
-  );
+type Props = {
+  authProvider: ElectronAuthProvider;
+  apiClient: ApiClient;
 };
 
-const isRaid = (message: Message) => {
-  return (
-    message.command === TwitchJs.Chat.Commands.USER_NOTICE &&
-    message.event === TwitchJs.Chat.Events.RAID
-  );
-};
-
-export default function Chat() {
+export default function Chat(props: Props) {
+  const { apiClient, authProvider } = props;
   const dispatch = useDispatch();
+
   const { messages, currentMessage } = useSelector(selectChat);
+  const { user } = useSelector(selectTwitch);
 
   const [isConnected, setIsConnected] = useState(false);
+  const [chatClient, setChatClient] = useState<ChatClient>();
 
   useEffect(() => {
-    const token = 'oauth:tce57zyg6h1g089x9enbxumnk7tp9h'; // process.env.TWITCH_TOKEN;
-    const username = 'milkdaddy777'; // process.env.TWITCH_USERNAME;
-    const channel = '#julianfelixc'.toLocaleLowerCase();
-    // const channel = '#milkdaddy777'.toLocaleLowerCase();
+    if (!user.id) {
+      apiClient
+        .getTokenInfo()
+        .then((token) => {
+          dispatch(setUser(token));
+          return token;
+        })
+        .catch(console.log);
+    }
 
-    // Instantiate clients.
-    const { api, chat } = new TwitchJs({ token, username });
-
-    chat.on(TwitchJs.Chat.Events.PRIVATE_MESSAGE, (message: Message) => {
-      console.log(message);
-      if (isPrivateMessage(message) || isRaid(message)) {
-        delete message.timestamp;
-        dispatch(addMessage({ message }));
-      }
-    });
-
-    chat
-      .connect()
-      .then(() => {
-        // ... and then join the channel.
-        chat.join(channel);
-        setIsConnected(true);
-        return true;
-      })
-      .catch((e) => {
-        setIsConnected(false);
-        console.log(e);
+    if (user?.name && !isConnected) {
+      console.log('Connecting...', user);
+      const client = new ChatClient(authProvider, {
+        readOnly: true,
+        channels: [user.name],
       });
+
+      setChatClient(client);
+
+      client
+        .connect()
+        .then((ret) => {
+          console.log('Connected!');
+          setIsConnected(true);
+          return true;
+        })
+        .catch(console.log);
+    }
 
     remote.globalShortcut.register('[', () => {
       dispatch(backMessage());
@@ -71,7 +67,21 @@ export default function Chat() {
     remote.globalShortcut.register(']', () => {
       dispatch(nextMessage());
     });
-  }, [dispatch]);
+
+    remote.globalShortcut.register('CommandOrControl+]', () => {
+      dispatch(goToNewestMessage());
+    });
+
+    // // TODO: Jump to newest message
+  }, [dispatch, user, isConnected]);
+
+  useEffect(() => {
+    if (chatClient) {
+      chatClient.onMessage((channel, userName, message, msgData) => {
+        dispatch(addMessage({ channel, userName, message, msgData }));
+      });
+    }
+  }, [dispatch, chatClient]);
 
   return (
     <div>
@@ -82,11 +92,13 @@ export default function Chat() {
           isConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
         ].join(' ')}
       />
-      {messages.map((message: Message, index: number) => {
+      {messages.map((msgData: PrivateMessage, index: number) => {
+        // console.log(msgData.tags);
         return (
+          // eslint-disable-next-line react/jsx-key
           <MessageItem
-            key={`${message.tags.id}-${message.tags.tmiSentTs}`}
-            message={message}
+            key={`${msgData.username}-${msgData.timestamp}`}
+            msgData={msgData}
             isRead={index < currentMessage}
             isCurrent={index === currentMessage}
           />
