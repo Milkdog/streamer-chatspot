@@ -11,3 +11,16 @@
 .disconnected {
   color: red;
 }
+
+.futureMessageContainer {
+  position: absolute;
+  bottom: 16px;
+  left: 14px;
+  width: 90%;
+  background-color: #DDD;
+  color: black;
+  border: 2px solid black;
+  padding: 4px;
+  text-align: center;
+  border-radius: 20px;
+}

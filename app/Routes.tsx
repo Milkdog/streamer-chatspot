@@ -22,7 +22,7 @@ const CounterPage = (props: Record<string, any>) => (
 
 const clientId = 'go8akiwr4kocf9mmcisofgluipvtio';
 const secret = '9c4hf9xby3vsjiedbc4ay4rpyjfx50';
-const redirectUri = 'http://localhost/login';
+const redirectUri = 'http://localhost:3000/login';
 
 const authProvider = new ElectronAuthProvider({
   clientId,
@@ -31,6 +31,7 @@ const authProvider = new ElectronAuthProvider({
 
 const apiClient = new ApiClient({
   authProvider,
+  initialScopes: ['channel:read:redemptions'],
 });
 
 export default function Routes() {

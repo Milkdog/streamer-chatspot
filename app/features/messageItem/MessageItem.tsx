@@ -1,9 +1,10 @@
 import React from 'react';
-import { ParsedMessagePart, PrivateMessage } from 'twitch-chat-client';
+import { ParsedMessagePart } from 'twitch-chat-client';
+import { UserMessage } from '../chat/chatSlice';
 import styles from './MessageItem.css';
 
 type Props = {
-  msgData: PrivateMessage;
+  userMessage: UserMessage;
   isRead: boolean;
   isCurrent: boolean;
 };
@@ -24,7 +25,7 @@ export function Emote(props: EmoteProps) {
 }
 
 export default function MessageItem(props: Props) {
-  const { msgData, isRead, isCurrent } = props;
+  const { userMessage, isRead, isCurrent } = props;
 
   const fieldRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -47,16 +48,15 @@ export default function MessageItem(props: Props) {
     >
       <div
         className={styles.userName}
-        style={
-          {
-            // color: msgData.userColor,
-          }
-        }
+        style={{
+          color: userMessage.user.color,
+        }}
       >
-        {msgData.userInfo.displayName && `${msgData.userInfo.displayName}:`}
+        {userMessage.msgData.userInfo.displayName &&
+          `${userMessage.msgData.userInfo.displayName}:`}
       </div>
       <div className={styles.message}>
-        {msgData.parseEmotes().map((msgPart: ParsedMessagePart) => {
+        {userMessage.msgData.parseEmotes().map((msgPart: ParsedMessagePart) => {
           if (msgPart.type === 'emote') {
             return <Emote key={msgPart.position} emote={msgPart} />;
           }

@@ -3,11 +3,18 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PrivateMessage } from 'twitch-chat-client';
 import { RootState } from '../../store';
 
-export type Message = {
+export type MessagePayload = {
   userName: string;
   message: string;
   msgData: PrivateMessage;
   channel?: string;
+};
+
+export type UserMessage = {
+  msgData: PrivateMessage;
+  user: {
+    color: string | undefined;
+  };
 };
 
 const randomColors = [
@@ -38,24 +45,25 @@ const randomColors = [
 const chatSlice = createSlice({
   name: 'chat',
   initialState: {
-    messages: [] as PrivateMessage[],
+    messages: [] as UserMessage[],
     currentMessage: 0,
     userColors: {},
   },
   reducers: {
-    addMessage: (state, action: PayloadAction<Message>) => {
-      if (
-        !action.payload.msgData.userInfo.color &&
-        state.userColors[action.payload.message.username]
-      ) {
+    addMessage: (state, action: PayloadAction<MessagePayload>) => {
+      let userColor = action.payload.msgData.userInfo.color;
+      if (!userColor && state.userColors[action.payload.message.username]) {
         const color =
           randomColors[Math.floor(Math.random() * randomColors.length)];
 
-        action.payload.msgData.userColor = state.userColors[
-          action.payload.message.username
-        ] = color;
+        userColor = state.userColors[action.payload.message.username] = color;
       }
-      state.messages.push(action.payload.msgData);
+      state.messages.push({
+        user: {
+          color: userColor,
+        },
+        msgData: action.payload.msgData,
+      });
     },
     nextMessage: (state) => {
       if (state.currentMessage < state.messages.length - 1) {

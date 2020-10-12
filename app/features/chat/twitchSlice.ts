@@ -16,10 +16,16 @@ const twitchSlice = createSlice({
       state.user.id = action.payload.userId;
       state.user.name = action.payload.userName;
     },
+    clearUser: (state) => {
+      state.user = {
+        id: '',
+        name: '',
+      };
+    },
   },
 });
 
-export const { setUser } = twitchSlice.actions;
+export const { setUser, clearUser } = twitchSlice.actions;
 
 export default twitchSlice.reducer;
 

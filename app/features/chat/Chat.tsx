@@ -2,7 +2,9 @@ import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatClient } from 'twitch-chat-client';
+import { PubSubClient } from 'twitch-pubsub-client';
 import { ApiClient } from 'twitch/lib';
+import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
 import MessageItem from '../messageItem/MessageItem';
 import styles from './Chat.css';
 import {
@@ -10,10 +12,10 @@ import {
   backMessage,
   goToNewestMessage,
   nextMessage,
-  selectChat
+  selectChat,
+  UserMessage
 } from './chatSlice';
-import { selectTwitch, setUser } from './twitchSlice';
-import { ElectronAuthProvider } from './utils/twitch-electron-auth-provider/src';
+import { clearUser, selectTwitch, setUser } from './twitchSlice';
 
 type Props = {
   authProvider: ElectronAuthProvider;
@@ -27,8 +29,10 @@ export default function Chat(props: Props) {
   const { messages, currentMessage } = useSelector(selectChat);
   const { user } = useSelector(selectTwitch);
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isChatConnected, setIsChatConnected] = useState(false);
+  const [isPubSubConnected, setIsPubSubConnected] = useState(false);
   const [chatClient, setChatClient] = useState<ChatClient>();
+  const [pubSubClient, setPubSubClient] = useState<PubSubClient>();
 
   useEffect(() => {
     if (!user.id) {
@@ -41,8 +45,8 @@ export default function Chat(props: Props) {
         .catch(console.log);
     }
 
-    if (user?.name && !isConnected) {
-      console.log('Connecting...', user);
+    if (user?.name && !isChatConnected) {
+      console.log('[Chat] Connecting...', user);
       const client = new ChatClient(authProvider, {
         readOnly: true,
         channels: [user.name],
@@ -53,12 +57,37 @@ export default function Chat(props: Props) {
       client
         .connect()
         .then((ret) => {
-          console.log('Connected!');
-          setIsConnected(true);
+          console.log('[Chat] Connected!');
+          setIsChatConnected(true);
           return true;
         })
         .catch(console.log);
     }
+
+    // if (!isPubSubConnected && user.id) {
+    //   console.log('[PS] Connecting...', user);
+    //   const psClient = new PubSubClient();
+    //   psClient
+    //     .registerUserListener(apiClient, user.id)
+    //     .then(() => {
+    //       console.log('[PS] Connected');
+    //       setIsPubSubConnected(true);
+    //       return true;
+    //     })
+    //     .catch(console.log);
+
+    //   const redemptionListener = psClient
+    //     .onRedemption(user.id, (message: PubSubRedemptionMessage) => {
+    //       console.log(message);
+    //     })
+    //     .then((msg) => {
+    //       console.log(msg);
+    //       return true;
+    //     })
+    //     .catch(console.log);
+
+    //   setPubSubClient(psClient);
+    // }
 
     remote.globalShortcut.register('[', () => {
       dispatch(backMessage());
@@ -73,7 +102,7 @@ export default function Chat(props: Props) {
     });
 
     // // TODO: Jump to newest message
-  }, [dispatch, user, isConnected]);
+  }, [dispatch, user, isChatConnected, isPubSubConnected]);
 
   useEffect(() => {
     if (chatClient) {
@@ -83,25 +112,50 @@ export default function Chat(props: Props) {
     }
   }, [dispatch, chatClient]);
 
+  const handleLogout = () => {
+    console.log('Logging out...');
+    authProvider.allowUserChange(true);
+    chatClient.quit();
+    setIsChatConnected(false);
+    dispatch(clearUser());
+
+    // Trigger login
+    // authProvider
+    //   .getAccessToken()
+    //   .then((token) => {
+    //     console.log(token);
+    //     dispatch(setUser(token));
+    //     return true;
+    //   })
+    //   .catch(console.log);
+  };
+
   return (
-    <div>
+    <div className={styles.chatBox}>
       <i
         className={[
           styles.connectedIcon,
-          isConnected ? styles.connected : styles.disconnected,
-          isConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
+          isChatConnected ? styles.connected : styles.disconnected,
+          isChatConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
         ].join(' ')}
       />
-      {messages.map((msgData: PrivateMessage, index: number) => {
-        // console.log(msgData.tags);
+      {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
+      {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
+      {messages.map((userMessage: UserMessage, index: number) => {
         return (
-          // eslint-disable-next-line react/jsx-key
-          <MessageItem
-            key={`${msgData.username}-${msgData.timestamp}`}
-            msgData={msgData}
-            isRead={index < currentMessage}
-            isCurrent={index === currentMessage}
-          />
+          <div
+            className={styles.chatItem}
+            key={
+              userMessage.msgData.tags.get('id') ||
+              userMessage.msgData.tags.get('client-nonce')
+            }
+          >
+            <MessageItem
+              userMessage={userMessage}
+              isRead={index < currentMessage}
+              isCurrent={index === currentMessage}
+            />
+          </div>
         );
       })}
     </div>

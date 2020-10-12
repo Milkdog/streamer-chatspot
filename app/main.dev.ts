@@ -12,9 +12,16 @@ import 'core-js/stable';
 import { app, BrowserWindow } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
+// import express from 'express';
 import path from 'path';
 import 'regenerator-runtime/runtime';
 import MenuBuilder from './menu';
+
+// const expressApp = express();
+// expressApp.get('/login', (req, res) => res.send('Thanks!'));
+// expressApp.listen(3000, () =>
+//   console.log('Example app listening on port 3000!')
+// );
 
 export default class AppUpdater {
   constructor() {
