@@ -1,10 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Message } from 'twitch-js';
 // eslint-disable-next-line import/no-cycle
+import { PrivateMessage } from 'twitch-chat-client';
 import { RootState } from '../../store';
 
-type MessagePayload = {
-  message: Message;
+export type Message = {
+  userName: string;
+  message: string;
+  msgData: PrivateMessage;
+  channel?: string;
 };
 
 const randomColors = [
@@ -35,29 +38,32 @@ const randomColors = [
 const chatSlice = createSlice({
   name: 'chat',
   initialState: {
-    messages: [] as Message[],
+    messages: [] as PrivateMessage[],
     currentMessage: 0,
     userColors: {},
   },
   reducers: {
-    addMessage: (state, action: PayloadAction<MessagePayload>) => {
+    addMessage: (state, action: PayloadAction<Message>) => {
       if (
-        !action.payload.message.tags.color &&
+        !action.payload.msgData.userInfo.color &&
         state.userColors[action.payload.message.username]
       ) {
         const color =
           randomColors[Math.floor(Math.random() * randomColors.length)];
 
-        action.payload.message.tags.color = state.userColors[
+        action.payload.msgData.userColor = state.userColors[
           action.payload.message.username
         ] = color;
       }
-      state.messages.push(action.payload.message);
+      state.messages.push(action.payload.msgData);
     },
     nextMessage: (state) => {
       if (state.currentMessage < state.messages.length - 1) {
         state.currentMessage += 1;
       }
+    },
+    goToNewestMessage: (state) => {
+      state.currentMessage = state.messages.length - 1;
     },
     backMessage: (state) => {
       if (state.currentMessage > 0) {
@@ -67,7 +73,12 @@ const chatSlice = createSlice({
   },
 });
 
-export const { addMessage, backMessage, nextMessage } = chatSlice.actions;
+export const {
+  addMessage,
+  backMessage,
+  nextMessage,
+  goToNewestMessage,
+} = chatSlice.actions;
 
 export default chatSlice.reducer;
 

@@ -276,7 +276,7 @@
     "regenerator-runtime": "^0.13.5",
     "source-map-support": "^0.5.19",
     "twitch": "^4.2.6",
-    "twitch-js": "^2.0.0-beta.33",
+    "twitch-chat-client": "^4.2.6",
     "twitch-pubsub-client": "^4.2.6"
   },
   "devEngines": {
