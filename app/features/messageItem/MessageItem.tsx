@@ -1,9 +1,15 @@
 import React from 'react';
-import { ParsedMessagePart } from 'twitch-chat-client';
+import {
+  ParsedMessageCheerPart,
+  ParsedMessageEmotePart,
+  ParsedMessagePart
+} from 'twitch-chat-client';
+import { CheermoteList } from 'twitch/lib';
 import { UserMessage } from '../chat/chatSlice';
 import styles from './MessageItem.css';
 
 type Props = {
+  cheermoteList: CheermoteList;
   userMessage: UserMessage;
   isRead: boolean;
   isCurrent: boolean;
@@ -11,6 +17,10 @@ type Props = {
 
 type EmoteProps = {
   emote: ParsedMessageEmotePart;
+};
+
+type CheerProps = {
+  cheer: ParsedMessageCheerPart;
 };
 
 export function Emote(props: EmoteProps) {
@@ -24,8 +34,20 @@ export function Emote(props: EmoteProps) {
   );
 }
 
+export function Cheer(props: CheerProps) {
+  const { cheer } = props;
+  return (
+    <span>
+      <img src={cheer.displayInfo.url} alt={cheer.name} />
+      <span style={{ color: cheer.displayInfo.color, fontWeight: 'bold' }}>
+        {cheer.amount}
+      </span>
+    </span>
+  );
+}
+
 export default function MessageItem(props: Props) {
-  const { userMessage, isRead, isCurrent } = props;
+  const { cheermoteList, userMessage, isRead, isCurrent } = props;
 
   const fieldRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -44,7 +66,6 @@ export default function MessageItem(props: Props) {
         isRead ? styles.chatRowRead : '',
         isCurrent ? styles.chatRowCurrent : '',
       ].join(' ')}
-      // key={message.tags.id}
     >
       <div
         className={styles.userName}
@@ -56,14 +77,19 @@ export default function MessageItem(props: Props) {
           `${userMessage.msgData.userInfo.displayName}:`}
       </div>
       <div className={styles.message}>
-        {userMessage.msgData.parseEmotes().map((msgPart: ParsedMessagePart) => {
-          if (msgPart.type === 'emote') {
-            return <Emote key={msgPart.position} emote={msgPart} />;
-          }
+        {userMessage.msgData
+          .parseEmotesAndBits(cheermoteList)
+          .map((msgPart: ParsedMessagePart) => {
+            if (msgPart.type === 'emote') {
+              return <Emote key={msgPart.position} emote={msgPart} />;
+            }
 
-          // eslint-disable-next-line react/jsx-key
-          return <span key={msgPart.position}>{msgPart.text}</span>;
-        })}
+            if (msgPart.type === 'cheer') {
+              return <Cheer key={msgPart.position} cheer={msgPart} />;
+            }
+
+            return <span key={msgPart.position}>{msgPart.text}</span>;
+          })}
       </div>
     </div>
   );

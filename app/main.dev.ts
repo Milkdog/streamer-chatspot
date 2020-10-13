@@ -71,14 +71,24 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  const browserSettings =
+    process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
+      ? {
+          width: 720,
+          height: 728,
+          x: 1800,
+          y: 100,
+        }
+      : {
+          // Prod
+          width: 340,
+          height: 728,
+        };
+
   mainWindow = new BrowserWindow({
+    ...browserSettings,
     show: false,
-    // width: 340,
-    width: 720,
-    height: 728,
     icon: getAssetPath('icon.png'),
-    x: 1800,
-    y: 100,
     alwaysOnTop: true,
     webPreferences:
       (process.env.NODE_ENV === 'development' ||

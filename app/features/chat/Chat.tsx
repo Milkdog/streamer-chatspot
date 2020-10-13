@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatClient } from 'twitch-chat-client';
 import { PubSubClient } from 'twitch-pubsub-client';
-import { ApiClient } from 'twitch/lib';
+import { ApiClient, CheermoteList } from 'twitch/lib';
 import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
 import MessageItem from '../messageItem/MessageItem';
+import Settings from '../settings/Settings';
 import styles from './Chat.css';
 import {
   addMessage,
@@ -15,7 +16,7 @@ import {
   selectChat,
   UserMessage
 } from './chatSlice';
-import { clearUser, selectTwitch, setUser } from './twitchSlice';
+import { selectTwitch, setUser } from './twitchSlice';
 
 type Props = {
   authProvider: ElectronAuthProvider;
@@ -31,6 +32,7 @@ export default function Chat(props: Props) {
 
   const [isChatConnected, setIsChatConnected] = useState(false);
   const [isPubSubConnected, setIsPubSubConnected] = useState(false);
+  const [cheerMotes, setCheerMotes] = useState<CheermoteList>();
   const [chatClient, setChatClient] = useState<ChatClient>();
   const [pubSubClient, setPubSubClient] = useState<PubSubClient>();
 
@@ -59,6 +61,16 @@ export default function Chat(props: Props) {
         .then((ret) => {
           console.log('[Chat] Connected!');
           setIsChatConnected(true);
+          return true;
+        })
+        .catch(console.log);
+
+      console.log('[Cheermotes] Loading...');
+      apiClient.kraken.bits
+        .getCheermotes()
+        .then((cheermoteList) => {
+          console.log('[Cheermotes] Loaded');
+          setCheerMotes(cheermoteList);
           return true;
         })
         .catch(console.log);
@@ -112,33 +124,40 @@ export default function Chat(props: Props) {
     }
   }, [dispatch, chatClient]);
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-    authProvider.allowUserChange(true);
-    chatClient.quit();
-    setIsChatConnected(false);
-    dispatch(clearUser());
+  // const handleLogout = () => {
+  //   console.log('Logging out...');
+  //   authProvider.allowUserChange(true);
+  //   chatClient.quit();
+  //   setIsChatConnected(false);
+  //   dispatch(clearUser());
 
-    // Trigger login
-    // authProvider
-    //   .getAccessToken()
-    //   .then((token) => {
-    //     console.log(token);
-    //     dispatch(setUser(token));
-    //     return true;
-    //   })
-    //   .catch(console.log);
-  };
+  //   // Trigger login
+  //   // authProvider
+  //   //   .getAccessToken()
+  //   //   .then((token) => {
+  //   //     console.log(token);
+  //   //     dispatch(setUser(token));
+  //   //     return true;
+  //   //   })
+  //   //   .catch(console.log);
+  // };
+
+  if (!cheerMotes) {
+    return <div className={styles.chatBox}>Preparing...</div>;
+  }
 
   return (
     <div className={styles.chatBox}>
-      <i
-        className={[
-          styles.connectedIcon,
-          isChatConnected ? styles.connected : styles.disconnected,
-          isChatConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
-        ].join(' ')}
-      />
+      <div className={styles.menuBar}>
+        <Settings />
+        <i
+          className={[
+            styles.connectedIcon,
+            isChatConnected ? styles.connected : styles.disconnected,
+            isChatConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
+          ].join(' ')}
+        />
+      </div>
       {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
       {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
       {messages.map((userMessage: UserMessage, index: number) => {
@@ -151,6 +170,7 @@ export default function Chat(props: Props) {
             }
           >
             <MessageItem
+              cheermoteList={cheerMotes}
               userMessage={userMessage}
               isRead={index < currentMessage}
               isCurrent={index === currentMessage}
