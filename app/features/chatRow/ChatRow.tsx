@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   ParsedMessageCheerPart,
-  ParsedMessageEmotePart,
-  ParsedMessagePart
+  ParsedMessageEmotePart
 } from 'twitch-chat-client';
-import { CheermoteList } from 'twitch/lib';
-import { UserMessage } from '../chat/chatSlice';
-import styles from './MessageItem.css';
+import { DisplayItem } from '../chat/chatSlice';
+import styles from './ChatRow.css';
 
 type Props = {
-  cheermoteList: CheermoteList;
-  userMessage: UserMessage;
+  data: DisplayItem;
   isRead: boolean;
   isCurrent: boolean;
+  children: ReactNode;
 };
 
 type EmoteProps = {
@@ -46,8 +44,8 @@ export function Cheer(props: CheerProps) {
   );
 }
 
-export default function MessageItem(props: Props) {
-  const { cheermoteList, userMessage, isRead, isCurrent } = props;
+export default function ChatRow(props: Props) {
+  const { data, isRead, isCurrent, children } = props;
 
   const fieldRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
@@ -67,30 +65,7 @@ export default function MessageItem(props: Props) {
         isCurrent ? styles.chatRowCurrent : '',
       ].join(' ')}
     >
-      <div
-        className={styles.userName}
-        style={{
-          color: userMessage.user.color,
-        }}
-      >
-        {userMessage.msgData.userInfo.displayName &&
-          `${userMessage.msgData.userInfo.displayName}:`}
-      </div>
-      <div className={styles.message}>
-        {userMessage.msgData
-          .parseEmotesAndBits(cheermoteList)
-          .map((msgPart: ParsedMessagePart) => {
-            if (msgPart.type === 'emote') {
-              return <Emote key={msgPart.position} emote={msgPart} />;
-            }
-
-            if (msgPart.type === 'cheer') {
-              return <Cheer key={msgPart.position} cheer={msgPart} />;
-            }
-
-            return <span key={msgPart.position}>{msgPart.text}</span>;
-          })}
-      </div>
+      {children}
     </div>
   );
 }

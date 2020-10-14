@@ -8,16 +8,19 @@ import {
 } from 'twitch-pubsub-client/lib';
 import { ApiClient, CheermoteList } from 'twitch/lib';
 import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
-import MessageItem from '../messageItem/MessageItem';
+import ChatRow from '../chatRow/ChatRow';
+import Event from '../event/Event';
+import Message from '../message/Message';
 import Settings from '../settings/Settings';
 import styles from './Chat.css';
 import {
   addMessage,
+  addRedemption,
   backMessage,
+  DisplayItem,
   goToNewestMessage,
   nextMessage,
-  selectChat,
-  UserMessage
+  selectChat
 } from './chatSlice';
 import { selectTwitch, setUser } from './twitchSlice';
 
@@ -90,15 +93,13 @@ export default function Chat(props: Props) {
         })
         .catch(console.log);
 
-      const redemptionListener = pubSubClient
-        .onRedemption(user.id, (message: PubSubRedemptionMessage) => {
+      const redemptionListener = pubSubClient.onRedemption(
+        user.id,
+        (message: PubSubRedemptionMessage) => {
           console.log(message);
-        })
-        .then((msg) => {
-          console.log(msg);
-          return true;
-        })
-        .catch(console.log);
+          dispatch(addRedemption(message));
+        }
+      );
     }
 
     remote.globalShortcut.register('[', () => {
@@ -114,7 +115,7 @@ export default function Chat(props: Props) {
     });
 
     // // TODO: Jump to newest message
-  }, [dispatch, user, isChatConnected, isPubSubConnected]);
+  }, [dispatch, user]);
 
   useEffect(() => {
     if (chatClient) {
@@ -160,22 +161,34 @@ export default function Chat(props: Props) {
       </div>
       {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
       {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
-      {messages.map((userMessage: UserMessage, index: number) => {
+      {messages.map((userMessage: DisplayItem, index: number) => {
+        let rowContents;
+        let key = '';
+
+        if (userMessage.msgData) {
+          key =
+            userMessage.msgData.tags.get('id') ||
+            userMessage.msgData.tags.get('client-nonce');
+          rowContents = (
+            <Message cheermoteList={cheerMotes} userMessage={userMessage} />
+          );
+        }
+
+        if (userMessage.rewardId) {
+          key = userMessage.id;
+          rowContents = <Event event={userMessage} />;
+        }
+
         return (
-          <div
-            className={styles.chatItem}
-            key={
-              userMessage.msgData.tags.get('id') ||
-              userMessage.msgData.tags.get('client-nonce')
-            }
+          // eslint-disable-next-line react/jsx-key
+          <ChatRow
+            key={key}
+            data={userMessage}
+            isRead={index < currentMessage}
+            isCurrent={index === currentMessage}
           >
-            <MessageItem
-              cheermoteList={cheerMotes}
-              userMessage={userMessage}
-              isRead={index < currentMessage}
-              isCurrent={index === currentMessage}
-            />
-          </div>
+            {rowContents}
+          </ChatRow>
         );
       })}
     </div>

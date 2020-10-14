@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 // eslint-disable-next-line import/no-cycle
 import { PrivateMessage } from 'twitch-chat-client';
+import { PubSubRedemptionMessage } from 'twitch-pubsub-client/lib';
 import { RootState } from '../../store';
 
 export type MessagePayload = {
@@ -10,9 +11,10 @@ export type MessagePayload = {
   channel?: string;
 };
 
-export type DisplayItem = UserMessage;
+export type DisplayItem = UserMessage | PubSubRedemptionMessage;
 
 export type UserMessage = {
+  type: 'message';
   msgData: PrivateMessage;
   user: {
     color: string | undefined;
@@ -67,6 +69,9 @@ const chatSlice = createSlice({
         msgData: action.payload.msgData,
       });
     },
+    addRedemption: (state, action: PayloadAction<PubSubRedemptionMessage>) => {
+      state.messages.push(action.payload);
+    },
     nextMessage: (state) => {
       if (state.currentMessage < state.messages.length - 1) {
         state.currentMessage += 1;
@@ -85,6 +90,7 @@ const chatSlice = createSlice({
 
 export const {
   addMessage,
+  addRedemption,
   backMessage,
   nextMessage,
   goToNewestMessage,

@@ -1,0 +1,9 @@
+.event {
+  padding: 8px;
+  border-left: 2px solid blue;
+}
+
+.eventMessage {
+  font-weight: bold;
+  padding-left: 8px;
+}
