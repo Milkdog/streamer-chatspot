@@ -10,6 +10,8 @@ export type MessagePayload = {
   channel?: string;
 };
 
+export type DisplayItem = UserMessage;
+
 export type UserMessage = {
   msgData: PrivateMessage;
   user: {

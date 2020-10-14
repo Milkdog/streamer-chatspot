@@ -120,6 +120,7 @@ export class ElectronAuthProvider implements AuthProvider {
       if (this._allowUserChange) {
         queryParams.force_verify = true;
       }
+
       const authUrl = `https://id.twitch.tv/oauth2/authorize${stringify(
         queryParams,
         { addQueryPrefix: true }
@@ -131,6 +132,7 @@ export class ElectronAuthProvider implements AuthProvider {
         modal: true,
         webPreferences: {
           nodeIntegration: false,
+          enableRemoteModule: false,
         },
       };
       let done = false;

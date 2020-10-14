@@ -1,7 +1,8 @@
 /* eslint react/jsx-props-no-spreading: off */
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Route, Switch } from 'react-router';
 import { ApiClient } from 'twitch';
+import { AccessToken } from 'twitch-auth';
 import routes from './constants/routes.json';
 import App from './containers/App';
 import HomePage from './containers/HomePage';
@@ -20,21 +21,43 @@ const CounterPage = (props: Record<string, any>) => (
   </React.Suspense>
 );
 
-const clientId = 'go8akiwr4kocf9mmcisofgluipvtio';
-const secret = '9c4hf9xby3vsjiedbc4ay4rpyjfx50';
-const redirectUri = 'http://localhost:3000/login';
-
-const authProvider = new ElectronAuthProvider({
-  clientId,
-  redirectUri,
-});
-
-const apiClient = new ApiClient({
-  authProvider,
-  initialScopes: ['channel:read:redemptions'],
-});
-
 export default function Routes() {
+  const [authProvider, setAuthProvider] = useState<ElectronAuthProvider>();
+  const [accessToken, setAccessToken] = useState<AccessToken>();
+  const [apiClient, setApiClient] = useState<ApiClient>();
+
+  useEffect(() => {
+    const clientId = 'go8akiwr4kocf9mmcisofgluipvtio';
+    const redirectUri = 'http://localhost/';
+
+    const tempAuthProvider = new ElectronAuthProvider({
+      clientId,
+      redirectUri,
+    });
+
+    tempAuthProvider
+      .getAccessToken(['chat:read', 'channel:read:redemptions', 'bits:read'])
+      .then(setAccessToken)
+      .catch(console.log);
+
+    setAuthProvider(tempAuthProvider);
+  }, []);
+
+  useEffect(() => {
+    // console.log('[AUTH]', authProvider);
+    if (authProvider) {
+      setApiClient(
+        new ApiClient({
+          authProvider,
+        })
+      );
+    }
+  }, [authProvider]);
+
+  if (!authProvider || !apiClient || !accessToken || !accessToken.accessToken) {
+    return <div>Please login.</div>;
+  }
+
   return (
     <App>
       <Switch>

@@ -2,7 +2,10 @@ import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatClient } from 'twitch-chat-client';
-import { PubSubClient } from 'twitch-pubsub-client';
+import {
+  PubSubClient,
+  PubSubRedemptionMessage
+} from 'twitch-pubsub-client/lib';
 import { ApiClient, CheermoteList } from 'twitch/lib';
 import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
 import MessageItem from '../messageItem/MessageItem';
@@ -34,7 +37,6 @@ export default function Chat(props: Props) {
   const [isPubSubConnected, setIsPubSubConnected] = useState(false);
   const [cheerMotes, setCheerMotes] = useState<CheermoteList>();
   const [chatClient, setChatClient] = useState<ChatClient>();
-  const [pubSubClient, setPubSubClient] = useState<PubSubClient>();
 
   useEffect(() => {
     if (!user.id) {
@@ -76,30 +78,28 @@ export default function Chat(props: Props) {
         .catch(console.log);
     }
 
-    // if (!isPubSubConnected && user.id) {
-    //   console.log('[PS] Connecting...', user);
-    //   const psClient = new PubSubClient();
-    //   psClient
-    //     .registerUserListener(apiClient, user.id)
-    //     .then(() => {
-    //       console.log('[PS] Connected');
-    //       setIsPubSubConnected(true);
-    //       return true;
-    //     })
-    //     .catch(console.log);
+    if (!isPubSubConnected && user.id) {
+      console.log('[PS] Connecting...', user);
+      const pubSubClient = new PubSubClient();
+      pubSubClient
+        .registerUserListener(apiClient, user.id)
+        .then(() => {
+          console.log('[PS] Connected');
+          setIsPubSubConnected(true);
+          return true;
+        })
+        .catch(console.log);
 
-    //   const redemptionListener = psClient
-    //     .onRedemption(user.id, (message: PubSubRedemptionMessage) => {
-    //       console.log(message);
-    //     })
-    //     .then((msg) => {
-    //       console.log(msg);
-    //       return true;
-    //     })
-    //     .catch(console.log);
-
-    //   setPubSubClient(psClient);
-    // }
+      const redemptionListener = pubSubClient
+        .onRedemption(user.id, (message: PubSubRedemptionMessage) => {
+          console.log(message);
+        })
+        .then((msg) => {
+          console.log(msg);
+          return true;
+        })
+        .catch(console.log);
+    }
 
     remote.globalShortcut.register('[', () => {
       dispatch(backMessage());
@@ -143,7 +143,7 @@ export default function Chat(props: Props) {
   // };
 
   if (!cheerMotes) {
-    return <div className={styles.chatBox}>Preparing...</div>;
+    return <div className={styles.chatBox}>Connecting to Twitch...</div>;
   }
 
   return (
