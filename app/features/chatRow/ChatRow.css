@@ -10,6 +10,7 @@
 
 .chatRowCurrent {
   border: 1px solid red;
+  border-top-width: 2px;
   border-bottom: none;
 }
 

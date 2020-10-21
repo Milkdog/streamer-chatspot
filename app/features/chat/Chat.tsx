@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChatClient } from 'twitch-chat-client';
 import {
   PubSubClient,
-  PubSubRedemptionMessage
+  PubSubRedemptionMessage,
+  PubSubSubscriptionMessage
 } from 'twitch-pubsub-client/lib';
 import { ApiClient, CheermoteList } from 'twitch/lib';
 import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
@@ -15,7 +16,7 @@ import Settings from '../settings/Settings';
 import styles from './Chat.css';
 import {
   addMessage,
-  addRedemption,
+  addRawMessage,
   backMessage,
   DisplayItem,
   goToNewestMessage,
@@ -97,7 +98,15 @@ export default function Chat(props: Props) {
         user.id,
         (message: PubSubRedemptionMessage) => {
           console.log(message);
-          dispatch(addRedemption(message));
+          dispatch(addRawMessage(message));
+        }
+      );
+
+      const subListener = pubSubClient.onSubscription(
+        user.id,
+        (message: PubSubSubscriptionMessage) => {
+          console.log(message);
+          dispatch(addRawMessage(message));
         }
       );
     }
@@ -175,6 +184,11 @@ export default function Chat(props: Props) {
         }
 
         if (userMessage.rewardId) {
+          key = userMessage.id;
+          rowContents = <Event event={userMessage} />;
+        }
+
+        if (userMessage.subPlan) {
           key = userMessage.id;
           rowContents = <Event event={userMessage} />;
         }

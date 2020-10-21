@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 // eslint-disable-next-line import/no-cycle
 import { PrivateMessage } from 'twitch-chat-client';
-import { PubSubRedemptionMessage } from 'twitch-pubsub-client/lib';
+import {
+  PubSubRedemptionMessage,
+  PubSubSubscriptionMessage
+} from 'twitch-pubsub-client/lib';
 import { RootState } from '../../store';
 
 export type MessagePayload = {
@@ -11,7 +14,8 @@ export type MessagePayload = {
   channel?: string;
 };
 
-export type DisplayItem = UserMessage | PubSubRedemptionMessage;
+export type DisplayItem = UserMessage | EventMessage;
+export type EventMessage = PubSubRedemptionMessage | PubSubSubscriptionMessage;
 
 export type UserMessage = {
   type: 'message';
@@ -55,6 +59,11 @@ const chatSlice = createSlice({
   },
   reducers: {
     addMessage: (state, action: PayloadAction<MessagePayload>) => {
+      // Don't add redemption messages
+      if (action.payload.msgData.tags.get('custom-reward-id')) {
+        return;
+      }
+
       let userColor = action.payload.msgData.userInfo.color;
       if (!userColor && state.userColors[action.payload.message.username]) {
         const color =
@@ -69,7 +78,7 @@ const chatSlice = createSlice({
         msgData: action.payload.msgData,
       });
     },
-    addRedemption: (state, action: PayloadAction<PubSubRedemptionMessage>) => {
+    addRawMessage: (state, action: PayloadAction<EventMessage>) => {
       state.messages.push(action.payload);
     },
     nextMessage: (state) => {
@@ -90,7 +99,7 @@ const chatSlice = createSlice({
 
 export const {
   addMessage,
-  addRedemption,
+  addRawMessage,
   backMessage,
   nextMessage,
   goToNewestMessage,
