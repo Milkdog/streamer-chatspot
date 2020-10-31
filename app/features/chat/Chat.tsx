@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
+import * as Sentry from '@sentry/electron';
 import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,6 +26,11 @@ import {
   selectChat
 } from './chatSlice';
 import { selectTwitch, setUser } from './twitchSlice';
+
+Sentry.init({
+  dsn:
+    'https://c4c2b4d56000410db8ae75c086fa47f5@o461696.ingest.sentry.io/5463817',
+});
 
 type Props = {
   authProvider: ElectronAuthProvider;
@@ -55,6 +61,11 @@ export default function Chat(props: Props) {
     }
 
     if (user?.name && !isChatConnected) {
+      Sentry.setUser({ id: user.name });
+      Sentry.setContext('twitch', {
+        userName: user.name,
+      });
+
       console.log('[Chat] Connecting...', user);
       const client = new ChatClient(authProvider, {
         readOnly: true,
@@ -67,6 +78,7 @@ export default function Chat(props: Props) {
         .connect()
         .then((ret) => {
           console.log('[Chat] Connected!');
+          Sentry.captureMessage(`Connected - ${user.name}`);
           setIsChatConnected(true);
           return true;
         })

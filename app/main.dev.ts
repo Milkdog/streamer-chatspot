@@ -8,6 +8,7 @@
  * When running `yarn build` or `yarn build-main`, this file is compiled to
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
+import * as Sentry from '@sentry/electron';
 import 'core-js/stable';
 import { app, BrowserWindow } from 'electron';
 import log from 'electron-log';
@@ -25,6 +26,11 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+Sentry.init({
+  dsn:
+    'https://c4c2b4d56000410db8ae75c086fa47f5@o461696.ingest.sentry.io/5463817',
+});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
