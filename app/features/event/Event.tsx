@@ -77,29 +77,38 @@ gifterDisplayName: null
 giftDuration: null
   */
 
-  const subLength = event.giftDuration
+  const cumSubLength = event.cumulativeMonths
+    ? ` for ${event.cumulativeMonths} months total`
+    : null;
+
+  const giftSubsLength = event.giftDuration
     ? ` for ${event.giftDuration} months`
     : null;
 
   const tier = (tierCode: string) => {
     switch (tierCode) {
       case 'Prime':
-        return 'a Prime sub';
+        return 'Prime sub';
       case '1000':
-        return 'at Tier 1';
+        return 'Tier 1';
       case '2000':
-        return 'at Tier 2';
+        return 'Tier 2';
       case '3000':
-        return 'at Tier 3';
+        return 'Tier 3';
       default:
         return null;
     }
   };
 
   if (event.isResub) {
-    return `${event.userDisplayName} resubbed on month ${
-      event.months
-    } at ${tier(event.subPlan)}`;
+    return (
+      <div>
+        <strong>Resub</strong>
+        <br />
+        {event.userDisplayName}
+:{tier + cumSubLength}
+      </div>
+    );
   }
 
   if (event.isGift) {
@@ -107,12 +116,26 @@ giftDuration: null
       ? 'Anonymous'
       : event.gifterDisplayName;
 
-    return `${gifterName} gifted ${tier(event.subPlan)} to ${
-      event.userDisplayName
-    }${subLength}`;
+    return (
+      <div>
+        <strong>Gift Sub</strong>
+        <br />
+        {`From: {gifterName}`}
+        <br />
+        {`To: ${event.userDisplayName}`}
+        <br />
+        {`${tier}${giftSubLength}`}
+      </div>
+    );
   }
 
-  return `${event.userName} has subbed ${tier(event.subPlan)}${subLength}`;
+  return (
+    <div>
+      <strong>NEW SUB</strong>
+      <br />
+      {`${event.userDisplayName}: ${tier}`}
+    </div>
+  );
 };
 
 const renderSubscription = (event: PubSubRedemptionMessage) => {
@@ -133,9 +156,9 @@ export default function Event(props: Props) {
     return renderRedemption(event);
   }
 
-  // if (event.subPlan) {
-  //   return renderSubscription(event);
-  // }
+  if (event.subPlan) {
+    return renderSubscription(event);
+  }
 
   console.warn('[Missed event render', event);
   return null;

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { remote } from 'electron';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -157,7 +158,7 @@ export default function Chat(props: Props) {
   }
 
   return (
-    <div className={styles.chatBox}>
+    <div>
       <div className={styles.menuBar}>
         <Settings />
         <i
@@ -167,44 +168,56 @@ export default function Chat(props: Props) {
             isChatConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
           ].join(' ')}
         />
+        <i
+          className={[styles.quitIcon, 'far fa-window-close'].join(' ')}
+          onKeyDown={() => {
+            remote.app.quit();
+          }}
+          onClick={() => {
+            remote.app.quit();
+          }}
+        />
       </div>
-      {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
-      {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
-      {messages.map((userMessage: DisplayItem, index: number) => {
-        let rowContents;
-        let key = '';
 
-        if (userMessage.msgData) {
-          key =
-            userMessage.msgData.tags.get('id') ||
-            userMessage.msgData.tags.get('client-nonce');
-          rowContents = (
-            <Message cheermoteList={cheerMotes} userMessage={userMessage} />
+      <div className={styles.chatBox}>
+        {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
+        {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
+        {messages.map((userMessage: DisplayItem, index: number) => {
+          let rowContents;
+          let key = '';
+
+          if (userMessage.msgData) {
+            key =
+              userMessage.msgData.tags.get('id') ||
+              userMessage.msgData.tags.get('client-nonce');
+            rowContents = (
+              <Message cheermoteList={cheerMotes} userMessage={userMessage} />
+            );
+          }
+
+          if (userMessage.rewardId) {
+            key = userMessage.id;
+            rowContents = <Event event={userMessage} />;
+          }
+
+          if (userMessage.subPlan) {
+            key = userMessage.id;
+            rowContents = <Event event={userMessage} />;
+          }
+
+          return (
+            // eslint-disable-next-line react/jsx-key
+            <ChatRow
+              key={key}
+              data={userMessage}
+              isRead={index < currentMessage}
+              isCurrent={index === currentMessage}
+            >
+              {rowContents}
+            </ChatRow>
           );
-        }
-
-        if (userMessage.rewardId) {
-          key = userMessage.id;
-          rowContents = <Event event={userMessage} />;
-        }
-
-        if (userMessage.subPlan) {
-          key = userMessage.id;
-          rowContents = <Event event={userMessage} />;
-        }
-
-        return (
-          // eslint-disable-next-line react/jsx-key
-          <ChatRow
-            key={key}
-            data={userMessage}
-            isRead={index < currentMessage}
-            isCurrent={index === currentMessage}
-          >
-            {rowContents}
-          </ChatRow>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 }
