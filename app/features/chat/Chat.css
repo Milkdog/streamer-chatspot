@@ -12,6 +12,7 @@
   height: 28px;
   border-bottom: 1px solid #666;
   background-color: #333;
+  z-index: 10000000;
 }
 
 .connectedIcon {

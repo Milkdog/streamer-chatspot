@@ -1,6 +1,6 @@
 {
   "name": "electron-react-boilerplate",
-  "productName": "TwitchChatspot",
+  "productName": "StreamerChatspot",
   "version": "0.2.0",
   "description": "Let's you manage your Twitch Chat by helping you keep your spot.",
   "scripts": {
@@ -52,8 +52,8 @@
     ]
   },
   "build": {
-    "productName": "TwitchChatspot",
-    "appId": "org.develar.TwitchChatspot",
+    "productName": "StreamerChatspot",
+    "appId": "org.develar.StreamerChatspot",
     "files": [
       "dist/",
       "node_modules/",
