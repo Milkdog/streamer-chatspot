@@ -110,12 +110,12 @@
   },
   "author": {
     "name": "Chris Mielke",
-    "email": "twitchchatbot@chrismielke.com",
+    "email": "twitchchatspot@chrismielke.com",
     "url": "https://www.chrismielke.com"
   },
   "license": "MIT",
   "keywords": [],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
+  "homepage": "",
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {
@@ -268,16 +268,12 @@
     "source-map-support": "^0.5.19",
     "twitch": "^4.3.0-pre.3",
     "twitch-chat-client": "^4.3.0-pre.3",
-    "twitch-pubsub-client": "^4.3.0-pre.3",
-    "update-electron-app": "^2.0.1"
+    "twitch-pubsub-client": "^4.3.0-pre.3"
   },
   "devEngines": {
     "node": ">=7.x",
     "npm": ">=4.x",
     "yarn": ">=0.21.3"
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
   "browserslist": [],
   "prettier": {
