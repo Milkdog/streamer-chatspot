@@ -1,7 +1,7 @@
 {
   "name": "streamer-chatspot",
   "productName": "StreamerChatspot",
-  "version": "0.3.2",
+  "version": "0.3.5",
   "description": "Let's you manage your Twitch Chat by helping you keep your spot.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
