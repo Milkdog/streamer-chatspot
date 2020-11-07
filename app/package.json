@@ -1,13 +1,13 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "0.2.1",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "streamer-chatspot",
+  "productName": "StreamerChatspot",
+  "version": "0.3.0",
+  "description": "Let's you manage your Twitch Chat by helping you keep your spot.",
   "main": "./main.prod.js",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Chris Mielke",
+    "email": "streamer-chatspot@chrismielke.com",
+    "url": "https://www.chrismielke.com"
   },
   "scripts": {
     "electron-rebuild": "node -r ../internals/scripts/BabelRegister.js ../internals/scripts/ElectronRebuild.js",

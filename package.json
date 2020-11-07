@@ -1,7 +1,7 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "streamer-chatspot",
   "productName": "StreamerChatspot",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Let's you manage your Twitch Chat by helping you keep your spot.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -99,14 +99,14 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate",
-      "private": false
+      "owner": "milkdog",
+      "repo": "streamer-chatbot",
+      "private": true
     }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/Milkdog/streamer-chatspot.git"
   },
   "author": {
     "name": "Chris Mielke",
@@ -114,21 +114,7 @@
     "url": "https://www.chrismielke.com"
   },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
-  },
-  "keywords": [
-    "electron",
-    "boilerplate",
-    "react",
-    "redux",
-    "typescript",
-    "ts",
-    "sass",
-    "webpack",
-    "hot",
-    "reload"
-  ],
+  "keywords": [],
   "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
   "jest": {
     "testURL": "http://localhost/",
@@ -181,6 +167,7 @@
     "@teamsupercell/typings-for-css-modules-loader": "^2.2.1",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/express": "^4.17.8",
     "@types/history": "^4.7.7",
     "@types/jest": "^26.0.10",
     "@types/node": "12",
@@ -265,7 +252,6 @@
     "@hot-loader/react-dom": "^16.13.0",
     "@reduxjs/toolkit": "^1.4.0",
     "@sentry/electron": "^2.0.2",
-    "@types/express": "^4.17.8",
     "connected-react-router": "^6.6.1",
     "electron-debug": "^3.1.0",
     "electron-log": "^4.2.4",
@@ -282,7 +268,8 @@
     "source-map-support": "^0.5.19",
     "twitch": "^4.3.0-pre.3",
     "twitch-chat-client": "^4.3.0-pre.3",
-    "twitch-pubsub-client": "^4.3.0-pre.3"
+    "twitch-pubsub-client": "^4.3.0-pre.3",
+    "update-electron-app": "^2.0.1"
   },
   "devEngines": {
     "node": ">=7.x",

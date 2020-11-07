@@ -32,6 +32,10 @@ Sentry.init({
     'https://c4c2b4d56000410db8ae75c086fa47f5@o461696.ingest.sentry.io/5463817',
 });
 
+require('update-electron-app')({
+  repo: 'github-user/repo',
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
