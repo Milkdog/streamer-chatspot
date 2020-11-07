@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { remote } from 'electron';
 import React, { useState } from 'react';
+import { version } from '../../../package.json';
 import styles from './Settings.css';
 
 export default function Settings() {
@@ -46,6 +47,7 @@ export default function Settings() {
         />
         Window always on top
       </div>
+      <div className={styles.version}>{`v${version}`}</div>
     </div>
   );
 }

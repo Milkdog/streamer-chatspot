@@ -1,7 +1,7 @@
 {
   "name": "streamer-chatspot",
   "productName": "StreamerChatspot",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "Let's you manage your Twitch Chat by helping you keep your spot.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -10,6 +10,7 @@
     "build-main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js --colors",
     "build-renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js --colors",
     "dev": "cross-env START_HOT=1 node -r @babel/register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 yarn start-renderer-dev",
+    "deploy": "yarn postinstall && yarn build && electron-builder build --win --mac --publish always",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "lint-fix": "yarn --silent lint --fix; exit 0",
@@ -53,7 +54,7 @@
   },
   "build": {
     "productName": "StreamerChatspot",
-    "appId": "org.develar.StreamerChatspot",
+    "appId": "org.chrismielke.StreamerChatspot",
     "files": [
       "dist/",
       "node_modules/",
@@ -78,8 +79,7 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        "nsis"
       ]
     },
     "linux": {

@@ -10,6 +10,7 @@ import {
   PubSubSubscriptionMessage
 } from 'twitch-pubsub-client/lib';
 import { ApiClient, CheermoteList } from 'twitch/lib';
+import { version } from '../../../package.json';
 import { ElectronAuthProvider } from '../../utils/twitch-electron-auth-provider/src';
 import ChatRow from '../chatRow/ChatRow';
 import Event from '../event/Event';
@@ -64,6 +65,7 @@ export default function Chat(props: Props) {
       Sentry.setUser({ id: user.name });
       Sentry.setContext('twitch', {
         userName: user.name,
+        appVersion: version,
       });
 
       console.log('[Chat] Connecting...', user);
@@ -180,7 +182,7 @@ export default function Chat(props: Props) {
             isChatConnected ? 'far fa-comment-dots' : 'fas fa-comment-slash',
           ].join(' ')}
         />
-        <i
+        {/* <i
           className={[styles.quitIcon, 'far fa-window-close'].join(' ')}
           onKeyDown={() => {
             remote.app.quit();
@@ -188,7 +190,7 @@ export default function Chat(props: Props) {
           onClick={() => {
             remote.app.quit();
           }}
-        />
+        /> */}
       </div>
 
       <div className={styles.chatBox}>
@@ -213,7 +215,7 @@ export default function Chat(props: Props) {
           }
 
           if (userMessage.subPlan) {
-            key = userMessage.id;
+            key = userMessage.time;
             rowContents = <Event event={userMessage} />;
           }
 

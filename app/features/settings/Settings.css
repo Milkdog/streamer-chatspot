@@ -29,3 +29,10 @@
 .containerContents {
   padding: 32px 16px;
 }
+
+.version {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  color: #aaa;
+}

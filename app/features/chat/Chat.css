@@ -10,7 +10,7 @@
   top: 0;
   width: 100%;
   height: 28px;
-  border-bottom: 1px solid lightblue;
+  border-bottom: 1px solid #bbb;
   background-color: #333;
   z-index: 10000000;
 }
@@ -18,7 +18,8 @@
 .connectedIcon {
   position: absolute;
   top: 8px;
-  right: 32px;
+  right: 8px;
+  /* right: 32px; */
 }
 
 .quitIcon  {

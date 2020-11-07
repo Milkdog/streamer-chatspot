@@ -5,13 +5,17 @@
 }
 
 .chatRowRead {
-  color: #aaa;
+  color: #ccc;
+  opacity: .5;
 }
 
 .chatRowCurrent {
   border: 1px solid red;
   border-top-width: 2px;
   border-bottom: none;
+  border-right: none;
+  margin-left: 0;
+  padding-left: 5px;
 }
 
 .userName {

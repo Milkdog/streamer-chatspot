@@ -105,8 +105,7 @@ giftDuration: null
       <div>
         <strong>Resub</strong>
         <br />
-        {event.userDisplayName}
-:{tier + cumSubLength}
+        {event.userDisplayName}:{tier + cumSubLength}
       </div>
     );
   }
@@ -143,7 +142,7 @@ const renderSubscription = (event: PubSubRedemptionMessage) => {
     <div className={styles.event}>
       <div>{subMessage(event)}</div>
       {event.message ? (
-        <div className={styles.eventMessage}>{event.message}</div>
+        <div className={styles.eventMessage}>{event.message.message}</div>
       ) : null}
     </div>
   );
