@@ -65,11 +65,17 @@ const chatSlice = createSlice({
       }
 
       let userColor = action.payload.msgData.userInfo.color;
-      if (!userColor && state.userColors[action.payload.message.username]) {
+
+      if (
+        !userColor &&
+        !state.userColors[action.payload.msgData.userInfo.userName]
+      ) {
         const color =
           randomColors[Math.floor(Math.random() * randomColors.length)];
 
-        userColor = state.userColors[action.payload.message.username] = color;
+        userColor = state.userColors[
+          action.payload.msgData.userInfo.userName
+        ] = color;
       }
       state.messages.push({
         user: {
