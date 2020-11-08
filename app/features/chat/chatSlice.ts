@@ -64,12 +64,11 @@ const chatSlice = createSlice({
         return;
       }
 
-      let userColor = action.payload.msgData.userInfo.color;
+      let userColor =
+        action.payload.msgData.userInfo.color ||
+        state.userColors[action.payload.msgData.userInfo.userName];
 
-      if (
-        !userColor &&
-        !state.userColors[action.payload.msgData.userInfo.userName]
-      ) {
+      if (!userColor) {
         const color =
           randomColors[Math.floor(Math.random() * randomColors.length)];
 

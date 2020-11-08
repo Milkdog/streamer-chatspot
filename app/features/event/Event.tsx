@@ -105,7 +105,7 @@ giftDuration: null
       <div>
         <strong>Resub</strong>
         <br />
-        {event.userDisplayName}:{tier + cumSubLength}
+        {`${event.userDisplayName}: ${tier(event.subPlan)}${cumSubLength}`}
       </div>
     );
   }
@@ -123,7 +123,7 @@ giftDuration: null
         <br />
         {`To: ${event.userDisplayName}`}
         <br />
-        {`${tier}${giftSubLength}`}
+        {`${tier(event.subPlan)}${giftSubsLength}`}
       </div>
     );
   }
@@ -132,7 +132,7 @@ giftDuration: null
     <div>
       <strong>NEW SUB</strong>
       <br />
-      {`${event.userDisplayName}: ${tier}`}
+      {`${event.userDisplayName}: ${tier(event.subPlan)}`}
     </div>
   );
 };
