@@ -194,6 +194,14 @@ export default function Chat(props: Props) {
       </div>
 
       <div className={styles.chatBox}>
+        <div className={styles.instructions}>
+          <span>To use:</span>
+          <ul>
+            <li>[ - Previous messages</li>
+            <li>] - Next messages</li>
+            <li>Ctrl/Command + ] - Newest messages</li>
+          </ul>
+        </div>
         {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
         {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
         {messages.map((userMessage: DisplayItem, index: number) => {

@@ -79,11 +79,11 @@ giftDuration: null
 
   const cumSubLength = event.cumulativeMonths
     ? ` for ${event.cumulativeMonths} months total`
-    : null;
+    : '';
 
   const giftSubsLength = event.giftDuration
     ? ` for ${event.giftDuration} months`
-    : null;
+    : '';
 
   const tier = (tierCode: string) => {
     switch (tierCode) {
@@ -103,9 +103,9 @@ giftDuration: null
   if (event.isResub) {
     return (
       <div>
-        <strong>Resub</strong>
+        <strong>{`Resub by ${event.userDisplayName}`}</strong>
         <br />
-        {`${event.userDisplayName}: ${tier(event.subPlan)}${cumSubLength}`}
+        {`${tier(event.subPlan)}${cumSubLength}`}
       </div>
     );
   }
