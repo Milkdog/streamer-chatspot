@@ -77,8 +77,8 @@ gifterDisplayName: null
 giftDuration: null
   */
 
-  const cumSubLength = event.cumulativeMonths
-    ? ` for ${event.cumulativeMonths} months total`
+  const cumSubLength = event._data.cumulative_months
+    ? ` for ${event._data.cumulative_months} months total`
     : '';
 
   const giftSubsLength = event.giftDuration
