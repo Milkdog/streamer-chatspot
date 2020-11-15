@@ -119,7 +119,7 @@ giftDuration: null
       <div>
         <strong>Gift Sub</strong>
         <br />
-        {`From: {gifterName}`}
+        {`From: ${gifterName}`}
         <br />
         {`To: ${event.userDisplayName}`}
         <br />
