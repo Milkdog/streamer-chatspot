@@ -49,6 +49,7 @@ export default function Chat(props: Props) {
   const [isPubSubConnected, setIsPubSubConnected] = useState(false);
   const [cheerMotes, setCheerMotes] = useState<CheermoteList>();
   const [chatClient, setChatClient] = useState<ChatClient>();
+  const [updateVersion, setUpdateVersion] = useState('');
 
   useEffect(() => {
     if (!user.id) {
@@ -138,6 +139,20 @@ export default function Chat(props: Props) {
       dispatch(goToNewestMessage());
     });
 
+    remote.autoUpdater.addListener(
+      'update-downloaded',
+      (event, releaseNotes, releaseName, releaseDate) => {
+        Sentry.setContext('updateInfo', {
+          event,
+          releaseNotes,
+          releaseName,
+          releaseDate,
+        });
+        Sentry.captureMessage(`Update Downloaded - ${releaseName}`);
+        setUpdateVersion(releaseName);
+      }
+    );
+
     // // TODO: Jump to newest message
   }, [dispatch, user]);
 
@@ -201,7 +216,20 @@ export default function Chat(props: Props) {
             <li>] - Next messages</li>
             <li>Ctrl/Command + ] - Newest messages</li>
           </ul>
+          <div>
+            {`Please send feedback via Discord: MilkDaddy#7905 or `}
+            <a href="mailto:chris@chrismielke.com">email</a>
+          </div>
+          <div>
+            <strong>Note:</strong>
+            {` I collect Twitch names, so I may reach out soliciting feedback`}
+          </div>
         </div>
+        {updateVersion && (
+          <div className={styles.updateContainer}>
+            An update has been downloaded! Please restart.
+          </div>
+        )}
         {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
         {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
         {messages.map((userMessage: DisplayItem, index: number) => {

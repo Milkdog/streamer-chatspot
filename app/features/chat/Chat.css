@@ -1,6 +1,6 @@
 .chatBox {
   position: fixed;
-  top: 32px;
+  top: 30px;
   bottom: 0;
   overflow: hidden;
 }
@@ -59,4 +59,12 @@
   color: black;
   background-color: #ccccdd;
   padding: 4px;
+}
+
+.updateContainer {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 16px;
+  background-color: maroon;
 }

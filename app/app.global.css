@@ -9,8 +9,8 @@ body {
   color: white;
   height: 100vh;
   background-color: #10141a;
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
-  font-size: 14px;
+  font: caption;
+
   line-height: 1.3em;
   overflow-y: hidden;
   margin: 0;
