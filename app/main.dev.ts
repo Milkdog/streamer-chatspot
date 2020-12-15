@@ -13,9 +13,12 @@ import 'core-js/stable';
 import { app, BrowserWindow } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
+// import * as windowStateKeeper from 'electron-window-state';
 import path from 'path';
 import 'regenerator-runtime/runtime';
 import MenuBuilder from './menu';
+
+const windowStateKeeper = require('electron-window-state');
 
 export default class AppUpdater {
   constructor() {
@@ -70,22 +73,24 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  const browserSettings =
+  const mainWindowState = windowStateKeeper(
     process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
       ? {
-          width: 720,
-          height: 728,
-          x: 1800,
-          y: 100,
+          defaultWidth: 720,
+          defaultHeight: 728,
         }
       : {
           // Prod
-          width: 340,
-          height: 728,
-        };
-
+          defaultWidth: 340,
+          defaultHeight: 728,
+        }
+  );
+  console.log('WindowState', mainWindowState.x, mainWindowState.y);
   mainWindow = new BrowserWindow({
-    ...browserSettings,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     show: false,
     icon: getAssetPath('icon.png'),
     alwaysOnTop: true,
@@ -102,6 +107,8 @@ const createWindow = async () => {
             enableRemoteModule: true,
           },
   });
+
+  mainWindowState.manage(mainWindow);
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
