@@ -111,6 +111,48 @@ export default class MenuBuilder {
           },
         },
         {
+          id: 'resetZoom',
+          label: 'Reset Zoom',
+          accelerator: 'CommandOrControl+0',
+          click: async () => {
+            if (!this.mainWindow.isVisible()) {
+              this.mainWindow.showInactive();
+            }
+            this.mainWindow.focus();
+            this.mainWindow.webContents.zoomLevel = 0;
+          },
+        },
+        {
+          id: 'zoomIn',
+          label: 'Zoom In',
+          accelerator: 'CommandOrControl+Plus',
+          click: async () => {
+            if (!this.mainWindow.isVisible()) {
+              this.mainWindow.showInactive();
+            }
+            this.mainWindow.focus();
+            if (this.mainWindow.webContents.zoomLevel >= 9) {
+              return;
+            }
+            this.mainWindow.webContents.zoomLevel++;
+          },
+        },
+        {
+          id: 'zoomOut',
+          label: 'Zoom Out',
+          accelerator: 'CommandOrControl+-',
+          click: async () => {
+            if (!this.mainWindow.isVisible()) {
+              this.mainWindow.showInactive();
+            }
+            this.mainWindow.focus();
+            if (this.mainWindow.webContents.zoomLevel <= -9) {
+              return;
+            }
+            this.mainWindow.webContents.zoomLevel--;
+          },
+        },
+        {
           label: 'Toggle Full Screen',
           accelerator: 'Ctrl+Command+F',
           click: () => {
