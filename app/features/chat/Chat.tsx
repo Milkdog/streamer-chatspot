@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import * as Sentry from '@sentry/electron';
 import { remote } from 'electron';
+import Store from 'electron-store';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChatClient } from 'twitch-chat-client';
@@ -37,6 +38,15 @@ type Props = {
   authProvider: ElectronAuthProvider;
   apiClient: ApiClient;
 };
+
+const store = new Store({
+  defaults: {
+    shortcuts: {
+      lastMessage: '[',
+      nextMessage: ']',
+    },
+  },
+});
 
 export default function Chat(props: Props) {
   const { apiClient, authProvider } = props;
@@ -127,11 +137,11 @@ export default function Chat(props: Props) {
       );
     }
 
-    remote.globalShortcut.register('[', () => {
+    remote.globalShortcut.register(store.get('shortcuts.lastMessage'), () => {
       dispatch(backMessage());
     });
 
-    remote.globalShortcut.register(']', () => {
+    remote.globalShortcut.register(store.get('shortcuts.nextMessage'), () => {
       dispatch(nextMessage());
     });
 
@@ -212,8 +222,10 @@ export default function Chat(props: Props) {
         <div className={styles.instructions}>
           <span>To use:</span>
           <ul>
-            <li>[ - Previous messages</li>
-            <li>] - Next messages</li>
+            <li>
+              {`${store.get('shortcuts.lastMessage')} - Previous messages`}
+            </li>
+            <li>{`${store.get('shortcuts.nextMessage')} - Next messages`}</li>
             <li>Ctrl/Command + ] - Newest messages</li>
           </ul>
           <div>

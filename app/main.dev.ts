@@ -85,7 +85,7 @@ const createWindow = async () => {
           defaultHeight: 728,
         }
   );
-  console.log('WindowState', mainWindowState.x, mainWindowState.y);
+
   mainWindow = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
