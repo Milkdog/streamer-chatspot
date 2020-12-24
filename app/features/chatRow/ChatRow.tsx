@@ -6,17 +6,23 @@ type Props = {
   data: DisplayItem;
   isRead: boolean;
   isCurrent: boolean;
+  isNewest: boolean;
   children: ReactNode;
 };
 
 export default function ChatRow(props: Props) {
-  const { data, isRead, isCurrent, children } = props;
+  const { data, isRead, isCurrent, isNewest, children } = props;
 
   const fieldRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (isCurrent && fieldRef.current) {
       fieldRef.current.scrollIntoView({
         block: 'center',
+      });
+    }
+    if (isNewest && fieldRef.current) {
+      fieldRef.current.scrollIntoView({
+        block: 'end',
       });
     }
   });

@@ -45,6 +45,9 @@ const store = new Store({
       lastMessage: '[',
       nextMessage: ']',
     },
+    settings: {
+      showCurrentChat: false,
+    },
   },
 });
 
@@ -60,6 +63,9 @@ export default function Chat(props: Props) {
   const [cheerMotes, setCheerMotes] = useState<CheermoteList>();
   const [chatClient, setChatClient] = useState<ChatClient>();
   const [updateVersion, setUpdateVersion] = useState('');
+  const [showCurrentChat, setShowCurrentChat] = useState(
+    store.get('settings.showCurrentChat')
+  );
 
   useEffect(() => {
     if (!user.id) {
@@ -192,6 +198,46 @@ export default function Chat(props: Props) {
   //   //   .catch(console.log);
   // };
 
+  const renderMessages = (showCurrentMessages: boolean) => {
+    const messagesCount = messages.length;
+    return messages.map((userMessage: DisplayItem, index: number) => {
+      let rowContents;
+      let key = '';
+
+      if (userMessage.msgData) {
+        key =
+          userMessage.msgData.tags.get('id') ||
+          userMessage.msgData.tags.get('client-nonce');
+        rowContents = (
+          <Message cheermoteList={cheerMotes} userMessage={userMessage} />
+        );
+      }
+
+      if (userMessage.rewardId) {
+        key = userMessage.id;
+        rowContents = <Event event={userMessage} />;
+      }
+
+      if (userMessage.subPlan) {
+        key = userMessage.time;
+        rowContents = <Event event={userMessage} />;
+      }
+
+      return (
+        // eslint-disable-next-line react/jsx-key
+        <ChatRow
+          key={key}
+          data={userMessage}
+          isRead={index < currentMessage}
+          isCurrent={showCurrentMessages !== true && index === currentMessage}
+          isNewest={showCurrentMessages && index === messagesCount - 1}
+        >
+          {rowContents}
+        </ChatRow>
+      );
+    });
+  };
+
   if (!cheerMotes) {
     return <div className={styles.chatBox}>Connecting to Twitch...</div>;
   }
@@ -199,7 +245,7 @@ export default function Chat(props: Props) {
   return (
     <div>
       <div className={styles.menuBar}>
-        <Settings />
+        <Settings setShowCurrentChat={setShowCurrentChat} />
         <i
           className={[
             styles.connectedIcon,
@@ -218,15 +264,22 @@ export default function Chat(props: Props) {
         /> */}
       </div>
 
-      <div className={styles.chatBox}>
+      <div
+        className={[
+          styles.chatBox,
+          showCurrentChat ? styles.shortChatBox : '',
+        ].join(' ')}
+      >
         <div className={styles.instructions}>
           <span>To use:</span>
           <ul>
             <li>
-              {`${store.get('shortcuts.lastMessage')} - Previous messages`}
+              {`${store.get('shortcuts.lastMessage')}: Previous messages`}
             </li>
-            <li>{`${store.get('shortcuts.nextMessage')} - Next messages`}</li>
-            <li>Ctrl/Command + ] - Newest messages</li>
+            <li>{`${store.get('shortcuts.nextMessage')}: Next messages`}</li>
+            <li>Ctrl/Command + ]: Newest messages</li>
+            <li>Ctrl/Command + +: Increase font size</li>
+            <li>Ctrl/Command + -: Decrease font size</li>
           </ul>
           <div>
             {`Please send feedback via Discord: MilkDaddy#7905 or `}
@@ -244,41 +297,10 @@ export default function Chat(props: Props) {
         )}
         {/* <div className={styles.futureMessageContainer}>6 messages below</div> */}
         {/* <i className="fas fa-sign-out-alt" onClick={handleLogout} /> */}
-        {messages.map((userMessage: DisplayItem, index: number) => {
-          let rowContents;
-          let key = '';
-
-          if (userMessage.msgData) {
-            key =
-              userMessage.msgData.tags.get('id') ||
-              userMessage.msgData.tags.get('client-nonce');
-            rowContents = (
-              <Message cheermoteList={cheerMotes} userMessage={userMessage} />
-            );
-          }
-
-          if (userMessage.rewardId) {
-            key = userMessage.id;
-            rowContents = <Event event={userMessage} />;
-          }
-
-          if (userMessage.subPlan) {
-            key = userMessage.time;
-            rowContents = <Event event={userMessage} />;
-          }
-
-          return (
-            // eslint-disable-next-line react/jsx-key
-            <ChatRow
-              key={key}
-              data={userMessage}
-              isRead={index < currentMessage}
-              isCurrent={index === currentMessage}
-            >
-              {rowContents}
-            </ChatRow>
-          );
-        })}
+        {renderMessages(false)}
+        {showCurrentChat && (
+          <div className={styles.currentChatBox}>{renderMessages(true)}</div>
+        )}
       </div>
     </div>
   );

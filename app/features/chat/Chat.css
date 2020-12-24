@@ -5,6 +5,19 @@
   overflow: hidden;
 }
 
+.shortChatBox {
+  bottom: 50%;
+}
+
+.currentChatBox {
+  position: fixed;
+  width: 100%;
+  top: 50%;
+  bottom: 0;
+  overflow: hidden;
+  border-top: 4px solid #ccc;
+}
+
 .menuBar {
   position: fixed;
   top: 0;

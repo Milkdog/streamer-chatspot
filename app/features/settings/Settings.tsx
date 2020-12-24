@@ -5,7 +5,12 @@ import React, { useState } from 'react';
 import { version } from '../../../package.json';
 import styles from './Settings.css';
 
-export default function Settings() {
+type Props = {
+  setShowCurrentChat: (value: boolean) => void;
+};
+
+export default function Settings(props: Props) {
+  const { setShowCurrentChat } = props;
   const store = new Store();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +31,13 @@ export default function Settings() {
     remote
       .getCurrentWindow()
       .setAlwaysOnTop(!remote.getCurrentWindow().isAlwaysOnTop());
+  };
+
+  const handleShowCurrentChatToggle = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setShowCurrentChat(e.target.checked);
+    store.set('settings.showCurrentChat', e.target.checked);
   };
 
   const handleUpdateSettings = () => {
@@ -62,9 +74,17 @@ export default function Settings() {
           <input
             type="checkbox"
             defaultChecked
-            onClick={handleAlwaysOnTopToggle}
+            onChange={handleAlwaysOnTopToggle}
           />
           Window always on top
+        </div>
+        <div>
+          <input
+            type="checkbox"
+            defaultChecked={store.get('settings.showCurrentChat')}
+            onClick={handleShowCurrentChatToggle}
+          />
+          Display current message pane
         </div>
         {/*
         TODO: Save state on value change. Add "Update" button to save configs
